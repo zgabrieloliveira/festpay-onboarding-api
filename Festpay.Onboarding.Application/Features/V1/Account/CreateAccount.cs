@@ -54,7 +54,7 @@ public sealed class CreateAccountCommandHandler(FestpayContext dbContext) : IReq
     {
         if (VerifyExistingAccount(request.Document))
         {
-            throw new EntityAlreadyExistsException("Conta");
+            throw new EntityAlreadyExistsException("Account");
         }
 
         var account = new Account.Builder()
@@ -74,7 +74,7 @@ public sealed class CreateAccountCommandHandler(FestpayContext dbContext) : IReq
     }
 }
 
-internal sealed class CreateAccountCommandEndpoint : ICarterModule
+public sealed class CreateAccountCommandEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {

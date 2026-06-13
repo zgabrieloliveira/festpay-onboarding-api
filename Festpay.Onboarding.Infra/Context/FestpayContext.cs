@@ -7,6 +7,7 @@ namespace Festpay.Onboarding.Infra.Context;
 public class FestpayContext(DbContextOptions<FestpayContext> options) : DbContext(options)
 {
     public DbSet<Account> Accounts { get; init; }
+    public DbSet<Transaction> Transactions { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -18,12 +19,15 @@ public class FestpayContext(DbContextOptions<FestpayContext> options) : DbContex
     {
         base.OnConfiguring(optionsBuilder);
 
+        if (!optionsBuilder.IsConfigured)
+        {
+            new FestpayContextFactory().CreateDbContext();
+        }
+
         optionsBuilder.ConfigureWarnings(warnings =>
         {
             warnings.Ignore(CoreEventId.NavigationBaseIncludeIgnored);
         });
-
-        new FestpayContextFactory().CreateDbContext();
     }
 
     public static FestpayContext CreateDbContext() => new FestpayContextFactory().CreateDbContext();

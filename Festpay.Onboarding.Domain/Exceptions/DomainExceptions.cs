@@ -63,3 +63,17 @@ public class InvalidHourlyRateException(decimal hourlyRate)
 {
     public decimal HourlyRate { get; } = hourlyRate;
 }
+
+public class InvalidTransactionAmountException(decimal amount)
+    : DomainException($"The transaction amount '{amount}' must be greater than zero.", nameof(amount))
+{
+    public decimal Amount { get; } = amount;
+}
+
+public class SameSourceAndDestinationAccountException()
+    : DomainException("Source and destination accounts cannot be the same.")
+{ }
+
+public class TransactionAlreadyCancelledException()
+    : DomainException("This transaction is already cancelled.")
+{ }

@@ -1,43 +1,41 @@
-# 🧪 Teste Técnico - Dev Fullstack (.NET/C#) - Festpay
+# Festpay Onboarding API - Teste Técnico (Transações)
 
-## 🎯 Objetivo
+Este repositório contém a implementação do teste técnico para a vaga de Engenheiro de Software na Festpay, englobando a criação do domínio e CRUD da entidade `Transaction`.
 
-Construir e manter uma api em .NET 9 utilizando o padrão CQRS afim de manter um sistema de contas e transações da Festpay. Utilizando dos métodos já existentes, construa a entidade de Transações e o seu respectivo CRUD.
-A entidade deve herdar a entidade base e possuir os seguintes dados:
+## 🛠 Tecnologias Utilizadas
 
-- **Conta de destino**
-- **Conta de origem**
-- **Valor**
-- **Cancelada**
+A aplicação foi construída seguindo a arquitetura Vertical Slice e os princípios de Clean Architecture e DDD, utilizando as seguintes tecnologias:
 
-Deverá ser desenvolvido métodos para:
+* **.NET 9 / C# 13**
+* **Minimal APIs** com **Carter** para roteamento
+* **MediatR** para o padrão CQRS (Commands e Queries)
+* **FluentValidation** para validação de entrada via Pipeline Behaviors
+* **Entity Framework Core** com provedor **SQLite** para persistência
+* **xUnit** para testes de unidade (Domínio e Aplicação)
+* **EF Core In-Memory Database** para isolamento de testes de Application
 
-- **Buscar todas as transações**
-- **Buscar uma transação pelo Id**
-- **Inserir uma transação**
-- **Cancelar uma transação**
+## 🚀 Instruções para Rodar o Projeto
 
----
+### Pré-requisitos
+* .NET SDK 9.0 ou superior instalado.
 
-**ATENÇÃO** - Não se esqueça de desenvolver os testes de domínio e testes de aplicação.
+### 1. Executando a API
+A aplicação está configurada para gerar o banco de dados SQLite (`festpay.db`) e aplicar as configurações automaticamente durante a inicialização (via `context.Database.Migrate()`). 
 
----
+No terminal, acesse a raiz do projeto e execute:
+```bash
+dotnet restore
+dotnet build
+cd Festpay.Onboarding.Api
+dotnet run
+```
 
-## 🧱 Critérios de Avaliação
+A API estará disponível e o Swagger poderá ser acessado via navegador (a URL/porta será exibida no console).
 
-- Separação das regras de domínio e regras de aplicação
-- Estrutura e funcionalidade do código existente e do código redigido
-- Uso correto da arquitetura definida no projeto
-- Princípios SOLID
-- Tratamento de exceções
-- Código limpo e organizado
+### 2. Executando os Testes
+A suíte de testes cobre as regras de domínio (exceções e validações do `Builder`) e a orquestração da camada de aplicação (Handlers).
 
----
-
-## 📤 Entrega
-
-- Criar um fork do projeto e submetê-lo com as implementações
-- Atualizar o README com:
-  - Tecnologias utilizadas
-  - Instruções para rodar o projeto
-- As instruções para envio do projeto deverão seguir as orientações enviadas pelo recrutador.
+Na raiz do projeto, execute:
+```bash
+dotnet test
+```
