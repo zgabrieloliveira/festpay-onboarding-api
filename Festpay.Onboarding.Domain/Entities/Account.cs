@@ -62,4 +62,23 @@ public class Account : EntityBase
         }
     }
     
+    public void Deposit(decimal amount)
+    {
+        if (amount <= 0)
+            throw new InvalidAccountOperationAmountException(amount);
+            
+        Balance += amount;
+    }
+
+    public void Withdraw(decimal amount)
+    {
+        if (amount <= 0)
+            throw new InvalidAccountOperationAmountException(amount);
+            
+        if (Balance < amount)
+            throw new InsufficientBalanceException(); 
+            
+        Balance -= amount;
+    }
+    
 }
