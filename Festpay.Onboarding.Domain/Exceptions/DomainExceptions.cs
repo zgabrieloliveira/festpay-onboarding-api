@@ -77,3 +77,13 @@ public class SameSourceAndDestinationAccountException()
 public class TransactionAlreadyCancelledException()
     : DomainException("This transaction is already cancelled.")
 { }
+
+public class InsufficientBalanceException()
+    : DomainException("Insufficient balance to complete the operation.")
+{ }
+
+public class InvalidAccountOperationAmountException(decimal amount)
+    : DomainException($"The operation amount '{amount}' must be greater than zero.", nameof(amount))
+{
+    public decimal Amount { get; } = amount;
+}
