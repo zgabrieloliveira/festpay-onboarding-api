@@ -90,4 +90,69 @@ public class AccountTests
 
         Assert.Equal(invalidPhone, exception.Phone);
     }
+    
+    [Fact]
+    public void Should_Deposit_Successfully_When_Amount_Is_Valid()
+    {
+        var account = new Account.Builder()
+            .WithName("John Doe")
+            .WithDocument("16670073607")
+            .WithEmail("test@test.com")
+            .WithPhone("11999999999")
+            .Build();
+            
+        account.Deposit(100.00m);
+        
+        Assert.Equal(100.00m, account.Balance);
+    }
+
+    [Fact]
+    public void Should_Throw_ArgumentException_When_Deposit_Is_Zero_Or_Negative()
+    {
+        var account = new Account.Builder()
+            .WithName("John Doe")
+            .WithDocument("16670073607")
+            .WithEmail("test@test.com")
+            .WithPhone("11999999999")
+            .Build();
+
+        Assert.Throws<InvalidAccountOperationAmountException>(() => account.Deposit(0));
+        Assert.Throws<InvalidAccountOperationAmountException>(() => account.Deposit(-10.00m));
+    }
+
+    [Fact]
+    public void Should_Withdraw_Successfully_When_Balance_Is_Sufficient()
+    {
+        var account = new Account.Builder()
+            .WithName("John Doe")
+            .WithDocument("16670073607")
+            .WithEmail("test@test.com")
+            .WithPhone("11999999999")
+            .Build();
+            
+        account.Deposit(150.00m);
+        account.Withdraw(50.00m);
+        
+        Assert.Equal(100.00m, account.Balance);
+    }
+
+    [Fact]
+    public void Should_Throw_InvalidOperationException_When_Withdraw_Exceeds_Balance()
+    {
+        var account = new Account.Builder()
+            .WithName("John Doe")
+            .WithDocument("16670073607")
+            .WithEmail("test@test.com")
+            .WithPhone("11999999999")
+            .Build();
+            
+        account.Deposit(50.00m);
+        
+        var exception = Assert.Throws<InsufficientBalanceException>(
+            () => account.Withdraw(100.00m)
+        );
+        
+        Assert.Equal("Insufficient balance to complete the operation.", exception.Message);
+    }
+    
 }

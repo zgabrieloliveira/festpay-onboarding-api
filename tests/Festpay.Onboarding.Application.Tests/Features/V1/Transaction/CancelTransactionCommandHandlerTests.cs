@@ -17,11 +17,11 @@ public class CancelTransactionCommandHandlerTests
             .Options;
     }
 
-    private static Domain.Entities.Transaction CreateTestTransaction()
+    private static Domain.Entities.Transaction CreateTestTransaction(Guid sourceId, Guid destId)
     {
         return new Domain.Entities.Transaction.Builder()
-            .WithSourceAccount(Guid.NewGuid())
-            .WithDestinationAccount(Guid.NewGuid())
+            .WithSourceAccount(sourceId)
+            .WithDestinationAccount(destId)
             .WithAmount(150.00m)
             .Build();
     }
@@ -30,9 +30,28 @@ public class CancelTransactionCommandHandlerTests
     public async Task Should_Cancel_Transaction_When_Exists_And_Not_Cancelled()
     {
         // Arrange
-        var transaction = CreateTestTransaction();
-
         using var context = new FestpayContext(_dbOptions);
+        
+        var sourceAccount = new Account.Builder()
+            .WithName("Source")
+            .WithDocument("34180123029")
+            .WithEmail("source@test.com")
+            .WithPhone("11999999999")
+            .Build();
+
+        var destAccount = new Account.Builder()
+            .WithName("Dest")
+            .WithDocument("46994242013")
+            .WithEmail("dest@test.com")
+            .WithPhone("11999999999")
+            .Build();
+        
+        destAccount.Deposit(150.00m);
+
+        context.Accounts.Add(sourceAccount);
+        context.Accounts.Add(destAccount);
+
+        var transaction = CreateTestTransaction(sourceAccount.Id, destAccount.Id);
         context.Transactions.Add(transaction);
         await context.SaveChangesAsync();
 
@@ -46,6 +65,9 @@ public class CancelTransactionCommandHandlerTests
         // Assert
         Assert.True(result);
         Assert.True(updatedTransaction!.IsCancelled);
+        
+        Assert.Equal(150.00m, sourceAccount.Balance);
+        Assert.Equal(0.00m, destAccount.Balance);
     }
 
     [Fact]
