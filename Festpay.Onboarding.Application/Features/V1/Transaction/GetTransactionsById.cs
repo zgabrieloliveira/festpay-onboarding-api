@@ -37,6 +37,12 @@ public sealed class GetTransactionByIdQueryHandler(FestpayContext dbContext)
 
 public sealed class GetTransactionByIdEndpoint : ICarterModule
 {
+    /// <summary>
+    /// Retrieves a specific transaction by its ID.
+    /// </summary>
+    /// <param name="id">The transaction ID.</param>
+    /// <response code="200">Returns the transaction details.</response>
+    /// <response code="404">If the transaction was not found.</response>
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGet($"{EndpointConstants.V1}{EndpointConstants.Transaction}/{{id:guid}}",
@@ -46,6 +52,6 @@ public sealed class GetTransactionByIdEndpoint : ICarterModule
                     return Result.Ok(result);
                 }
             )
-            .WithTags("Transaction");
+            .WithTags(SwaggerTagsConstants.Transaction);
     }
 }

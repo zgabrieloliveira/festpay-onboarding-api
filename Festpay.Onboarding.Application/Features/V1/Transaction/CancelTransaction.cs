@@ -32,7 +32,17 @@ public sealed class CancelTransactionCommandHandler(FestpayContext dbContext)
 
         transaction.Cancel();
 
+        var sourceAccount = await dbContext.Accounts.FindAsync([transaction.SourceAccountId], cancellationToken)
+            ?? throw new NotFoundException("Source Account");
+
+        var destinationAccount = await dbContext.Accounts.FindAsync([transaction.DestinationAccountId], cancellationToken)
+            ?? throw new NotFoundException("Destination Account");
+
+        destinationAccount.Withdraw(transaction.Amount);
+        sourceAccount.Deposit(transaction.Amount);
+
         dbContext.Transactions.Update(transaction);
+        
         return await dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 }
@@ -41,6 +51,13 @@ public sealed class CancelTransactionEndpoint : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
+        /// <summary>
+        /// Cancels an existing transaction and performs a financial reversal between accounts.
+        /// </summary>
+        /// <param name="id">The transaction ID to be cancelled.</param>
+        /// <response code="200">Returns true if the cancellation was successful.</response>
+        /// <response code="400">If the cancellation fails due to business rules (e.g., insufficient funds in the destination account).</response>
+        /// <response code="404">If the transaction was not found.</response>
         app.MapPatch($"{EndpointConstants.V1}{EndpointConstants.Transaction}/{{id:guid}}/cancel",
                 async ([FromServices] ISender sender, [FromRoute] Guid id) =>
                 {
@@ -49,6 +66,6 @@ public sealed class CancelTransactionEndpoint : ICarterModule
                     return Result.Ok(result);
                 }
             )
-            .WithTags("Transaction");
+            .WithTags(SwaggerTagsConstants.Transaction);
     }
 }

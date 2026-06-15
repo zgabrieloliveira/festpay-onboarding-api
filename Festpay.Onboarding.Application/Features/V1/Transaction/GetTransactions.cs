@@ -47,6 +47,10 @@ public sealed class GetTransactionsQueryHandler(FestpayContext dbContext)
 
 public sealed class GetTransactionsEndpoint : ICarterModule
 {
+    /// <summary>
+    /// Retrieves a list of all transactions.
+    /// </summary>
+    /// <response code="200">Returns the list of transactions.</response>
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGet($"{EndpointConstants.V1}{EndpointConstants.Transaction}",
@@ -56,6 +60,6 @@ public sealed class GetTransactionsEndpoint : ICarterModule
                     return Result.Ok(result);
                 }
             )
-            .WithTags("Transaction");
+            .WithTags(SwaggerTagsConstants.Transaction);
     }
 }

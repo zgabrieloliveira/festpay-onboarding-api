@@ -3,7 +3,6 @@ using MediatR;
 using Festpay.Onboarding.Domain.Extensions;
 using Festpay.Onboarding.Infra.Context;
 using Festpay.Onboarding.Application.Common.Exceptions;
-using Festpay.Onboarding.Domain.Entities;
 using Carter;
 using Microsoft.AspNetCore.Routing;
 using Festpay.Onboarding.Application.Common.Constants;
@@ -11,6 +10,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Festpay.Onboarding.Application.Common.Models;
 using Microsoft.AspNetCore.Http;
+
+using DomainAccount = Festpay.Onboarding.Domain.Entities.Account;
 
 namespace Festpay.Onboarding.Application.Features.V1;
 
@@ -57,7 +58,7 @@ public sealed class CreateAccountCommandHandler(FestpayContext dbContext) : IReq
             throw new EntityAlreadyExistsException("Account");
         }
 
-        var account = new Account.Builder()
+        var account = new DomainAccount.Builder()
             .WithName(request.Name)
             .WithDocument(request.Document)
             .WithEmail(request.Email)

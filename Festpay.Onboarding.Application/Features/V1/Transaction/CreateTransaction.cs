@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Festpay.Onboarding.Application.Common.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
 namespace Festpay.Onboarding.Application.Features.V1.Transaction;
 
@@ -43,13 +42,14 @@ public sealed class CreateTransactionCommandHandler(FestpayContext dbContext)
 {
     public async Task<bool> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
     {
-        var sourceExists = await dbContext.Accounts.AnyAsync(a => a.Id == request.SourceAccountId, cancellationToken);
-        if (!sourceExists)
-            throw new NotFoundException("Source Account");
+        var sourceAccount = await dbContext.Accounts.FindAsync([request.SourceAccountId], cancellationToken)
+            ?? throw new NotFoundException("Source Account");
 
-        var destinationExists = await dbContext.Accounts.AnyAsync(a => a.Id == request.DestinationAccountId, cancellationToken);
-        if (!destinationExists)
-            throw new NotFoundException("Destination Account");
+        var destinationAccount = await dbContext.Accounts.FindAsync([request.DestinationAccountId], cancellationToken)
+            ?? throw new NotFoundException("Destination Account");
+
+        sourceAccount.Withdraw(request.Amount);
+        destinationAccount.Deposit(request.Amount);
 
         var transaction = new Domain.Entities.Transaction.Builder()
             .WithSourceAccount(request.SourceAccountId)
@@ -58,12 +58,19 @@ public sealed class CreateTransactionCommandHandler(FestpayContext dbContext)
             .Build();
 
         await dbContext.Transactions.AddAsync(transaction, cancellationToken);
+        
         return await dbContext.SaveChangesAsync(cancellationToken) > 0;
     }
 }
 
 public sealed class CreateTransactionEndpoint : ICarterModule
 {
+    /// <summary>
+    /// Creates a new financial transaction between two accounts.
+    /// </summary>
+    /// <param name="command">The transaction details (SourceAccountId, DestinationAccountId, Amount).</param>
+    /// <response code="201">Returns the newly created transaction.</response>
+    /// <response code="400">If the input data is invalid or the source account has insufficient balance.</response>
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapPost($"{EndpointConstants.V1}{EndpointConstants.Transaction}",
@@ -73,6 +80,6 @@ public sealed class CreateTransactionEndpoint : ICarterModule
                 return Result.Created(result);
             }
         )
-        .WithTags("Transaction");
+        .WithTags(SwaggerTagsConstants.Transaction);
     }
 }
